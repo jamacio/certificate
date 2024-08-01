@@ -14,8 +14,11 @@ class UserController
         return view('auth.login');
     }
 
+
+
     public function login(Request $request)
     {
+
         // Validação dos dados recebidos
         $validated = $request->validate([
             'email' => 'required|email',
