@@ -11,7 +11,7 @@ if (!function_exists('url')) {
     function url($path = '')
     {
         // Define a URL base do seu projeto
-        $baseUrl = 'http://localhost:8002'; // Ajuste para a URL base do seu projeto
+        $baseUrl = $_ENV['URL_BASE']; // Ajuste para a URL base do seu projeto
 
         return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
     }
