@@ -3,7 +3,6 @@
 namespace App\Controllers;
 
 use App\Models\Certificate;
-use Illuminate\Database\Capsule\Manager as DB;
 use Illuminate\Http\Request;
 
 
@@ -16,39 +15,34 @@ class CertificateController
         return view('certificates.index', compact('certificates'));
     }
 
-    public function store(Request $request)
+    public function store($data)
     {
-
-        die('dfdsfdsf');
-        // // Criação de um novo certificado
-        // $certificate = new Certificate();
-        // $certificate->id_user = $_SESSION['id'];
-        // $certificate->title = $validated['title'];
-        // $certificate->description = $validated['description'];
-        // // Adicione outros campos conforme necessário
-        // $certificate->save();
-
-        // // Redireciona para a lista de certificados com uma mensagem de sucesso
-        // return redirect()->route('certificates.index')->with('success', 'Certificado criado com sucesso.');
+        $certificate = new Certificate();
+        $certificate->id_user = $_SESSION['id'];
+        $certificate->image = $data;
+        $certificate->save();
     }
 
-    public function remove($id)
+    public function remove(Request $request)
     {
-        // Encontre o certificado pelo ID
+        $content = $request->getContent();
+        $requestContent = json_decode($content, true);
+        if (isset($requestContent['remove-file'])) {
+            $id = $requestContent['remove-file'];
+        }
+
+        parse_str($content, $requestParam);
+
+        $id = $requestParam['remove-file'] ?? '';
+
         $certificate = Certificate::where('id', $id)
             ->where('id_user', $_SESSION['id'])
             ->first();
 
-        // Verifique se o certificado existe e pertence ao usuário atual
         if ($certificate) {
-            // Exclua o certificado
             $certificate->delete();
-
-            // Redireciona para a lista de certificados com uma mensagem de sucesso
-            return redirect()->route('certificates.index')->with('success', 'Certificado removido com sucesso.');
-        } else {
-            // Caso o certificado não exista ou não pertença ao usuário, redirecione com um erro
-            return redirect()->route('certificates.index')->with('error', 'Certificado não encontrado ou você não tem permissão para removê-lo.');
         }
+
+        $this->index();
     }
 }

@@ -2,3 +2,4 @@ vendor/*
 storage/framework/views/*
 composer.lock
 .env
+storage/uploads/*
