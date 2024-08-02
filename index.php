@@ -14,6 +14,8 @@ use Illuminate\View\Engines\CompilerEngine;
 use Illuminate\View\Compilers\BladeCompiler;
 use Dotenv\Dotenv;
 
+session_start();
+
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 

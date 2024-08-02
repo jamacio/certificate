@@ -6,9 +6,11 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 
 class UserController
 {
+
     public function showLoginForm()
     {
         return view('auth.login');
@@ -18,24 +20,32 @@ class UserController
 
     public function login(Request $request)
     {
-
-        // Validação dos dados recebidos
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
-        // Tenta autenticar o usuário
-        if (Auth::attempt([
-            'email' => $validated['email'],
-            'password' => $validated['password']
-        ])) {
-            // Redireciona para a página inicial ou dashboard
-            return redirect()->intended('dashboard')->with('success', 'Login realizado com sucesso.');
-        } else {
-            // Redireciona de volta ao formulário com uma mensagem de erro
-            return redirect()->back()->with('error', 'Credenciais inválidas.');
+        $pageEnd = '/';
+        $requestParam = [];
+        $content = $request->getContent();
+        $requestContent = json_decode($content, true);
+        if (isset($requestContent['user_login']) && isset($requestContent['user_password'])) {
+            $userLogin = $requestContent['user_login'];
+            $userPassword = md5($requestContent['user_password']);
         }
+
+        parse_str($content, $requestParam);
+
+        $userLogin = $requestParam['user_login'] ?? '';
+        $userPassword = md5($requestParam['user_password'] ?? '');
+
+        $user = User::where('email', $userLogin)->first();
+
+        if ($user && $user->password == $userPassword) {
+            $_SESSION['id'] = $user->id;
+            $pageEnd = '/certificates';
+        }
+
+
+        $response = new RedirectResponse($pageEnd);
+        $response->send();
+
+        return;
     }
 
     public function showRegistrationForm()

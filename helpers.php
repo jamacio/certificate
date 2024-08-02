@@ -1,18 +1,19 @@
 <?php
-// app/helpers.php
 
 if (!function_exists('url')) {
-    /**
-     * Gera uma URL baseada na URL base do projeto.
-     *
-     * @param string $path
-     * @return string
-     */
+
     function url($path = '')
     {
-        // Define a URL base do seu projeto
-        $baseUrl = $_ENV['URL_BASE']; // Ajuste para a URL base do seu projeto
+        $baseUrl = $_ENV['URL_BASE'];
 
         return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
+    }
+}
+
+if (!function_exists('session')) {
+    function session($key)
+    {
+        $session = $_SESSION[$key];
+        return $session;
     }
 }
