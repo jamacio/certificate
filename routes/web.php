@@ -28,23 +28,28 @@ $router->get('/certificates', function () {
 
 $router->post('/certificates', function () {
 
-    $idUser = session('id');
-    $targetDir = "./storage/uploads/";
-    $imageFileType = strtolower(pathinfo($_FILES["fileToUpload"]["name"], PATHINFO_EXTENSION));
-    $timeNow = time();
-    $imageName = "{$idUser}-{$timeNow}.{$imageFileType}";
-    $targetFile = $targetDir . $imageName;
+    try {
+        $idUser = session('id');
+        $targetDir = "./storage/uploads/";
+        $imageFileType = strtolower(pathinfo($_FILES["fileToUpload"]["name"], PATHINFO_EXTENSION));
+        $timeNow = time();
+        $imageName = "{$idUser}-{$timeNow}.{$imageFileType}";
+        $targetFile = $targetDir . $imageName;
 
-    $allowedFormats = ["jpg", "jpeg", "png", "pdf", "webp"];
-    if (!in_array($imageFileType, $allowedFormats)) {
-        setSession('error', 'error');
-    }
+        $allowedFormats = ["jpg", "jpeg", "png", "pdf", "webp"];
 
-    if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $targetFile)) {
-        setSession('success', 'success');
-
-        $certificateController = new CertificateController();
-        $certificateController->store($imageName);
+        if (
+            in_array($imageFileType, $allowedFormats) &&
+            move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $targetFile)
+        ) {
+            $certificateController = new CertificateController();
+            $certificateController->store($imageName);
+            setSession('success', 'success');
+        } else {
+            setSession('error', 'error');
+        }
+    } catch (\Exception $e) {
+        setSession('error', $e->getMessage());
     }
 
     return ControllerResolver::resolve(CertificateController::class, 'index');
