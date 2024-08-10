@@ -10,20 +10,25 @@ $router->get('/', function () {
     return ControllerResolver::resolve(UserController::class, 'showLoginForm');
 });
 
-$router->post('/login', function () {
-    return ControllerResolver::resolve(UserController::class, 'login');
+$router->get('/logout', function () {
+    setSession('id', '');
+    redirect('/');
 });
 
 $router->get('/register', function () {
     return ControllerResolver::resolve(UserController::class, 'showRegistrationForm');
 });
 
-$router->post('/register', function () {
-    return ControllerResolver::resolve(UserController::class, 'register');
-});
-
 $router->get('/certificates', function () {
     return ControllerResolver::resolve(CertificateController::class, 'index');
+});
+
+$router->post('/login', function () {
+    return ControllerResolver::resolve(UserController::class, 'login');
+});
+
+$router->post('/register', function () {
+    return ControllerResolver::resolve(UserController::class, 'register');
 });
 
 $router->post('/certificates', function () {

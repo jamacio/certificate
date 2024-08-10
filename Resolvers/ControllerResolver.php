@@ -4,6 +4,7 @@ namespace App\Resolvers;
 
 use ReflectionClass;
 use ReflectionMethod;
+use Illuminate\Http\Request;
 
 class ControllerResolver
 {
@@ -17,6 +18,7 @@ class ControllerResolver
         }
 
         $reflectMethod = $reflector->getMethod($method);
+
         $params = self::resolveParameters($reflectMethod, $params);
 
         return $reflectMethod->invokeArgs($instance, $params);
@@ -26,15 +28,23 @@ class ControllerResolver
     {
         $parameters = $method->getParameters();
         $resolved = [];
+        $requestProvided = false;
 
         foreach ($parameters as $index => $parameter) {
-            if (isset($params[$index])) {
+            if ($parameter->getType() && $parameter->getType()->getName() === Request::class) {
+                $resolved[] = Request::createFromGlobals();
+                $requestProvided = true;
+            } elseif (isset($params[$index])) {
                 $resolved[] = $params[$index];
             } elseif ($parameter->getType() && !$parameter->getType()->isBuiltin()) {
                 $resolved[] = app($parameter->getType()->getName());
             } else {
                 $resolved[] = null;
             }
+        }
+
+        if (!$requestProvided && !empty($parameters)) {
+            array_unshift($resolved, Request::createFromGlobals());
         }
 
         return $resolved;

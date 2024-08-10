@@ -3,8 +3,6 @@
 namespace App\Controllers;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class UserController
@@ -17,18 +15,11 @@ class UserController
     public function login(Request $request)
     {
         $pageEnd = '/';
-        $requestParam = [];
-        $content = $request->getContent();
-        $requestContent = json_decode($content, true);
+        $requestContent = $request->all();
         if (isset($requestContent['user_login']) && isset($requestContent['user_password'])) {
             $userLogin = $requestContent['user_login'];
             $userPassword = md5($requestContent['user_password']);
         }
-
-        parse_str($content, $requestParam);
-
-        $userLogin = $requestParam['user_login'] ?? '';
-        $userPassword = md5($requestParam['user_password'] ?? '');
 
         $user = User::where('email', $userLogin)->first();
 
@@ -49,24 +40,34 @@ class UserController
 
     public function register(Request $request)
     {
-        // Validação dos dados recebidos
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+        $pageEnd = '/register';
+        $requestContent = $request->all();
 
-        // Criação de um novo usuário
-        $user = new User();
-        $user->name = $validated['name'];
-        $user->email = $validated['email'];
-        $user->password = Hash::make($validated['password']);
-        $user->save();
+        if (
+            isset($requestContent['username']) && !empty($requestContent['username']) &&
+            isset($requestContent['email']) && !empty($requestContent['email']) &&
+            isset($requestContent['password']) && !empty($requestContent['password'])
+        ) {
 
-        // Loga o usuário recém-criado
-        Auth::login($user);
+            $username = $requestContent['username'];
+            $email = $requestContent['email'];
+            $userPassword = md5($requestContent['password']);
 
-        // Redireciona para a página inicial ou dashboard com uma mensagem de sucesso
-        return redirect()->intended('dashboard')->with('success', 'Registro realizado com sucesso.');
+            $user = new User;
+            $user->username = $username;
+            $user->email = $email;
+            $user->password = $userPassword;
+            $user->save();
+
+
+            die('fdsfdsf');
+
+            setSession('id', $user->id);
+            $pageEnd = '/certificates';
+        }
+
+
+        redirect($pageEnd);
+        return;
     }
 }

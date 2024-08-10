@@ -10,9 +10,13 @@ class CertificateController
     public function index()
     {
         $idUser = session('id');
-        $certificates = Certificate::where('id_user', $idUser)->get();
+        if ($idUser) {
+            $certificates = Certificate::where('id_user', $idUser)->get();
 
-        return view('certificates.index', compact('certificates'));
+            return view('certificates.index', compact('certificates'));
+        }
+
+        return redirect('/');
     }
 
     public function store($data)
@@ -42,7 +46,7 @@ class CertificateController
         if ($certificate) {
             $certificate->delete();
         }
-        redirect('/certificates');
-        return;
+
+        return redirect('/certificates');
     }
 }
