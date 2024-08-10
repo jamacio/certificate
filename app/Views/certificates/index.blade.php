@@ -28,9 +28,9 @@
             <td>{{ $certificate->image }}</td>
             <td>
                 @if (strpos($certificate->image, '.pdf') !== false)
-                <iframe src="{{ url('uploads/' . $certificate->image) }}"></iframe>
+                <iframe src="{{ url('storage/uploads/' . $certificate->image) }}"></iframe>
                 @else
-                <img src="{{ url('uploads/' . $certificate->image) }}" alt="Certificado" />
+                <img src="{{ url('storage/uploads/' . $certificate->image) }}" alt="Certificado" />
                 @endif
             </td>
             <td>
