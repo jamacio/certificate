@@ -19,38 +19,41 @@ session_start();
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-$app = new Container;
+$app = new Container();
 $app->instance('config', require __DIR__ . '/config/database.php');
 $app->instance('events', new Dispatcher($app));
 
-
-$fileSystem = new Filesystem;
+$fileSystem = new Filesystem();
 $viewFinder = new FileViewFinder($fileSystem, [__DIR__ . '/app/Views']);
+
 $engineResolver = new EngineResolver();
-$engineResolver->register('php', function () {
-    return new PhpEngine();
+
+$engineResolver->register('php', function () use ($fileSystem) {
+    return new PhpEngine($fileSystem);
 });
-$engineResolver->register('blade', function () use ($fileSystem) {
-    return new CompilerEngine(new BladeCompiler($fileSystem, __DIR__ . '/storage/framework/views'));
+
+$cachePath = __DIR__ . '/storage/framework/views';
+$bladeCompiler = new BladeCompiler($fileSystem, $cachePath);
+$engineResolver->register('blade', function () use ($bladeCompiler) {
+    return new CompilerEngine($bladeCompiler);
 });
+
 $viewFactory = new Factory($engineResolver, $viewFinder, $app->make('events'));
 $app->instance('view', $viewFactory);
-
 
 function app($abstract = null)
 {
     global $app;
-    if (is_null($abstract)) {
-        return $app;
-    }
-    return $app->make($abstract);
+    return is_null($abstract) ? $app : $app->make($abstract);
 }
 
 function view($view, $data = [])
 {
     echo app('view')->make($view, $data)->render();
+    setSession('error', '');
+    setSession('success', '');
 }
 
-require 'config/database.php';
+
 require 'Resolvers/ControllerResolver.php';
 require 'routes/web.php';

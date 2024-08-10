@@ -28,7 +28,7 @@ $router->get('/certificates', function () {
 
 $router->post('/certificates', function () {
 
-    $idUser = $_SESSION['id'];
+    $idUser = session('id');
     $targetDir = "./storage/uploads/";
     $imageFileType = strtolower(pathinfo($_FILES["fileToUpload"]["name"], PATHINFO_EXTENSION));
     $timeNow = time();
@@ -37,11 +37,11 @@ $router->post('/certificates', function () {
 
     $allowedFormats = ["jpg", "jpeg", "png", "pdf", "webp"];
     if (!in_array($imageFileType, $allowedFormats)) {
-        $_SESSION['error'] = 'error';
+        setSession('error', 'error');
     }
 
     if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $targetFile)) {
-        $_SESSION['success'] = 'success';
+        setSession('success', 'success');
 
         $certificateController = new CertificateController();
         $certificateController->store($imageName);

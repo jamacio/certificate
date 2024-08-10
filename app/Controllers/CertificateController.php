@@ -5,12 +5,12 @@ namespace App\Controllers;
 use App\Models\Certificate;
 use Illuminate\Http\Request;
 
-
 class CertificateController
 {
     public function index()
     {
-        $certificates = Certificate::where('id_user', $_SESSION['id'])->get();
+        $idUser = session('id');
+        $certificates = Certificate::where('id_user', $idUser)->get();
 
         return view('certificates.index', compact('certificates'));
     }
@@ -18,7 +18,7 @@ class CertificateController
     public function store($data)
     {
         $certificate = new Certificate();
-        $certificate->id_user = $_SESSION['id'];
+        $certificate->id_user = session('id');
         $certificate->image = $data;
         $certificate->save();
     }
@@ -34,15 +34,15 @@ class CertificateController
         parse_str($content, $requestParam);
 
         $id = $requestParam['remove-file'] ?? '';
-
+        $idUser = session('id');
         $certificate = Certificate::where('id', $id)
-            ->where('id_user', $_SESSION['id'])
+            ->where('id_user', $idUser)
             ->first();
 
         if ($certificate) {
             $certificate->delete();
         }
-
-        $this->index();
+        redirect('/certificates');
+        return;
     }
 }

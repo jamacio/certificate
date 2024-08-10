@@ -6,17 +6,13 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 
 class UserController
 {
-
     public function showLoginForm()
     {
         return view('auth.login');
     }
-
-
 
     public function login(Request $request)
     {
@@ -37,14 +33,12 @@ class UserController
         $user = User::where('email', $userLogin)->first();
 
         if ($user && $user->password == $userPassword) {
-            $_SESSION['id'] = $user->id;
+            setSession('id', $user->id);
             $pageEnd = '/certificates';
         }
 
 
-        $response = new RedirectResponse($pageEnd);
-        $response->send();
-
+        redirect($pageEnd);
         return;
     }
 
