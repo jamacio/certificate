@@ -19,6 +19,10 @@ $router->get('/register', function () {
     return ControllerResolver::resolve(UserController::class, 'showRegistrationForm');
 });
 
+$router->get('/myaccount', function () {
+    return ControllerResolver::resolve(UserController::class, 'showMyAccountForm');
+});
+
 $router->get('/certificates', function () {
     return ControllerResolver::resolve(CertificateController::class, 'index');
 });
@@ -29,6 +33,14 @@ $router->post('/login', function () {
 
 $router->post('/register', function () {
     return ControllerResolver::resolve(UserController::class, 'register');
+});
+
+$router->post('/myaccount', function () {
+    return ControllerResolver::resolve(UserController::class, 'myAccount');
+});
+
+$router->post('/certificates/remove', function () {
+    return ControllerResolver::resolve(CertificateController::class, 'remove');
 });
 
 $router->post('/certificates', function () {
@@ -58,10 +70,6 @@ $router->post('/certificates', function () {
     }
 
     return ControllerResolver::resolve(CertificateController::class, 'index');
-});
-
-$router->post('/certificates/remove', function () {
-    return ControllerResolver::resolve(CertificateController::class, 'remove');
 });
 
 $router->run();

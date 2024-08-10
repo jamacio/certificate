@@ -9,7 +9,22 @@ class UserController
 {
     public function showLoginForm()
     {
-        return view('auth.login');
+        return view('user.login');
+    }
+
+    public function showRegistrationForm()
+    {
+        return view('user.register');
+    }
+
+    public function showMyAccountForm()
+    {
+        $idUser = session('id');
+        if ($idUser) {
+            $userInfo = User::where('id', $idUser)->get();
+            $user = $userInfo->first();
+            return view('user.myaccount', compact('user'));
+        }
     }
 
     public function login(Request $request)
@@ -33,14 +48,8 @@ class UserController
         return;
     }
 
-    public function showRegistrationForm()
-    {
-        return view('auth.register');
-    }
-
     public function register(Request $request)
     {
-        $pageEnd = '/register';
         $requestContent = $request->all();
 
         if (
@@ -53,21 +62,45 @@ class UserController
             $email = $requestContent['email'];
             $userPassword = md5($requestContent['password']);
 
-            $user = new User;
+            $user = new User();
             $user->username = $username;
             $user->email = $email;
             $user->password = $userPassword;
             $user->save();
 
-
-            die('fdsfdsf');
-
             setSession('id', $user->id);
-            $pageEnd = '/certificates';
+            setSession('success', 'success');
+            redirect('/certificates');
+            return;
+        }
+        setSession('error', 'error');
+        redirect('/register');
+        return;
+    }
+
+    public function myAccount(Request $request)
+    {
+        $requestContent = $request->all();
+        if (
+            isset($requestContent['username']) && !empty($requestContent['username']) &&
+            isset($requestContent['email']) && !empty($requestContent['email']) &&
+            isset($requestContent['password']) && !empty($requestContent['password'])
+        ) {
+            $username = $requestContent['username'];
+            $email = $requestContent['email'];
+            $userPassword = md5($requestContent['password']);
+            $idUser = session('id');
+            $user = user::find($idUser);
+            $user->username = $username;
+            $user->email = $email;
+            $user->password = $userPassword;
+            $user->save();
+
+            setSession('success', 'success');
+            return;
         }
 
-
-        redirect($pageEnd);
+        setSession('error', 'error');
         return;
     }
 }
